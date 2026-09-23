@@ -17,7 +17,7 @@
 :root {
   color-scheme: light;
   --red: #f52525;
-  --mint: #92fff6;
+  --accent: #0019ff;
   --white: #fff;
   --s: 1;
 }
@@ -76,7 +76,7 @@ body {
   position: absolute;
   z-index: 3;
   margin: 0;
-  color: var(--mint);
+  color: var(--accent);
   font-family: "Anton", Impact, "Arial Narrow", sans-serif;
   font-weight: 400;
   line-height: 1;
@@ -158,7 +158,7 @@ body {
 .menu-button[aria-expanded="true"] { color: var(--red); background: var(--white); }
 .menu-button:focus-visible,
 .menu-panel a:focus-visible,
-.brand:focus-visible { outline: 2px solid var(--mint); outline-offset: 5px; }
+.brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
 
 .menu-icon {
   width: calc(17px * var(--s));
@@ -235,7 +235,7 @@ body {
 .support-copy { color: rgba(255, 255, 255, .72); }
 
 .hero .brush-touched {
-  color: var(--mint);
+  color: var(--accent);
   text-shadow: none;
 }
 
