@@ -5,7 +5,7 @@
   "description": "Two-screen Octopus Mentality site with scroll transitions and brush reveals",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check app.js && node --check scene.js && node --check cursor-renderer.js && node --check server.mjs"
+    "check": "node --check app.js && node --check scene.js && node --check clay-reveal.js && node --check cursor-renderer.js && node --check server.mjs"
   },
   "engines": { "node": ">=20.11" }
 }

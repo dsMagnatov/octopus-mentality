@@ -1,16 +1,10 @@
 (() => {
   const hero = document.getElementById("hero");
-  const clay = document.getElementById("clay");
   const guides = hero.querySelector(".guides");
   const [vertical, horizontal, diagonal] = guides.querySelectorAll("line:not(.guide-erase)");
   const [verticalFill, horizontalFill, diagonalFill] = guides.querySelectorAll(".guide-erase");
   const circle = guides.querySelector("circle");
-  const claySvg = document.getElementById("clay-reveal");
-  const clayMask = document.getElementById("clay-brush-mask");
-  const clayPath = document.getElementById("clay-brush-path");
-  const clayImage = document.getElementById("clay-image");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const POINT_COUNT = 31;
   const exits = [
     [".title-octopus", .02, .46, -.34, -28, -2],
     [".title-mentality", .08, .44, -.47, 24, 2],
@@ -33,15 +27,6 @@
   });
   let scrollFrame = 0;
   let heroBrushCleared = false;
-  let width = 0;
-  let height = 0;
-  let brushWidth = 0;
-  let pointer = null;
-  let chain = [];
-  let brushFrame = 0;
-  let lastInput = 0;
-  let lastFrame = 0;
-
   const clamp = (value) => Math.min(1, Math.max(0, value));
   const phase = (progress, start, end) => clamp((progress - start) / (end - start));
   const ease = (value) => value * value * (3 - 2 * value);
@@ -86,73 +71,8 @@
     if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScroll);
   }
 
-  function updateSize() {
-    width = clay.clientWidth;
-    height = clay.clientHeight;
-    brushWidth = 250 * Math.min(width / 1920, height / 1080);
-    claySvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-    clayMask.setAttribute("width", width);
-    clayMask.setAttribute("height", height);
-    clayImage.setAttribute("width", width);
-    clayImage.setAttribute("height", height);
-    clayPath.setAttribute("stroke-width", brushWidth);
-    chain = [];
-    pointer = null;
-    clayPath.setAttribute("d", "");
-    scheduleScroll();
-  }
-  function updateChain(now) {
-    const dt = Math.min(50, Math.max(0, now - lastFrame));
-    const steps = Math.max(1, Math.ceil(dt / (1000 / 120)));
-    const headEase = 1 - Math.exp(-dt / steps / 70);
-    const tailEase = 1 - Math.exp(-dt / steps / 38);
-    for (let step = 0; step < steps; step++) {
-      if (pointer) {
-        chain[0].x += (pointer.x - chain[0].x) * headEase;
-        chain[0].y += (pointer.y - chain[0].y) * headEase;
-      }
-      for (let i = 1; i < chain.length; i++) {
-        chain[i].x += (chain[i - 1].x - chain[i].x) * tailEase;
-        chain[i].y += (chain[i - 1].y - chain[i].y) * tailEase;
-      }
-    }
-  }
-  function renderBrush(now) {
-    brushFrame = 0;
-    if (!chain.length) return;
-    const idle = now - lastInput;
-    if (idle >= 450) {
-      chain = [];
-      clayPath.setAttribute("d", "");
-      return;
-    }
-    if (!reducedMotion.matches) updateChain(now);
-    else if (pointer) chain.forEach((point) => Object.assign(point, pointer));
-    lastFrame = now;
-    const coords = chain.map((point) => `${point.x.toFixed(1)} ${point.y.toFixed(1)}`);
-    clayPath.setAttribute("d", `M${coords.join("L")}L${(chain.at(-1).x + .01).toFixed(2)} ${chain.at(-1).y.toFixed(1)}`);
-    clayPath.setAttribute("opacity", String(1 - ease(phase(idle, 80, 450))));
-    scheduleBrush();
-  }
-  function scheduleBrush() {
-    if (!brushFrame) brushFrame = requestAnimationFrame(renderBrush);
-  }
-  clay.addEventListener("pointermove", (event) => {
-    if (event.pointerType === "touch") return;
-    const bounds = clay.getBoundingClientRect();
-    const now = performance.now();
-    pointer = { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
-    if (!chain.length) {
-      chain = Array.from({ length: POINT_COUNT }, () => ({ ...pointer }));
-      lastFrame = now;
-    }
-    lastInput = now;
-    scheduleBrush();
-  }, { passive: true });
-  clay.addEventListener("pointerleave", () => { pointer = null; });
-  window.addEventListener("blur", () => { pointer = null; });
   window.addEventListener("scroll", scheduleScroll, { passive: true });
-  window.addEventListener("resize", updateSize, { passive: true });
-  updateSize();
+  window.addEventListener("resize", scheduleScroll, { passive: true });
+  reducedMotion.addEventListener("change", scheduleScroll);
   updateScroll();
 })();
