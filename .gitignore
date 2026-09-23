@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+.publish/
+*.glb
+home.jpg
+home2.jpg
+ChatGPT Image*.png

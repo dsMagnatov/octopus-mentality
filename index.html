@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#F52525" />
+    <title>Octopus Mentality — Creative Branding Studio</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="viewport" aria-label="Octopus Mentality homepage">
+      <section class="hero" id="hero" aria-labelledby="hero-title">
+        <svg class="guides" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="552" y1="0" x2="552" y2="1080" />
+          <line x1="0" y1="313" x2="1920" y2="313" />
+          <line x1="0" y1="1080" x2="1920" y2="0" />
+          <circle cx="960" cy="540" r="468" />
+        </svg>
+
+        <svg class="paint-trail" id="paint-trail" viewBox="0 0 1920 1080" aria-hidden="true"><g id="trail-strokes" fill="white"></g></svg>
+
+        <h1 class="display-title title-octopus" id="hero-title" aria-label="Octopus Mentality">OCTOPUS</h1>
+        <p class="display-title title-mentality" aria-hidden="true">MENTALITY</p>
+
+        <div class="octopus" aria-label="A white octopus whose blue floral ornament is revealed by moving the cursor over it">
+          <img src="./image 68.png" alt="Glossy white octopus" draggable="false" />
+          <svg id="ornament-reveal" viewBox="0 0 922 922" aria-hidden="true">
+            <defs>
+              <mask id="brush-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="922" height="922" style="mask-type: alpha">
+                <g id="mask-strokes" fill="white"></g>
+              </mask>
+            </defs>
+            <image href="./image 67.png" width="922" height="922" mask="url(#brush-mask)" />
+          </svg>
+        </div>
+
+        <header class="topbar">
+          <a class="brand" href="#hero" aria-label="Octopus Mentality home">
+            <img src="./logo.svg" alt="" width="64" height="64" />
+          </a>
+          <button class="menu-button" id="menu-button" type="button" aria-controls="menu-panel" aria-expanded="false">
+            <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
+            <span id="menu-label">Menu</span>
+          </button>
+        </header>
+
+        <p class="eyebrow top-right">Shape the Future<br />Before It Arrives</p>
+        <p class="eyebrow left-middle">Build the Vision<br />Before It Launches</p>
+
+        <div class="studio-copy" id="studio">
+          <h2>Shape the Future Before<br />It Arrives</h2>
+          <p>We help ambitious founders turn bold ideas into unforgettable identities with strategic thinking and creative precision.</p>
+          <p>We are a creative branding studio for ambitious startups, turning bold ideas into unforgettable identities with strategic thinking and creative precision.</p>
+        </div>
+
+        <p class="support-copy left-bottom" id="vision">We build bold, high-performance brands that move fast, adapt faster, and leave a lasting mark on their audience.</p>
+        <p class="footer-note">Build the Vision</p>
+        <p class="support-copy right-bottom">We build bold, high-performance brands that move fast, adapt faster, and leave a lasting mark on their audience.</p>
+
+        <nav class="menu-panel" id="menu-panel" aria-label="Page navigation" hidden>
+          <a href="#hero">Home</a>
+          <a href="#vision">Vision</a>
+          <a href="#studio">Studio</a>
+        </nav>
+      </section>
+    </main>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
