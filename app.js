@@ -3,11 +3,11 @@
   const BRUSH_RADIUS = 190;
   const TAIL_LENGTH = 1100;
   const FOLLOW_TIME = 38;
-  const MASK_HOLD = 260;
-  const MASK_FADE = 840;
+  const MASK_HOLD = 100;
+  const MASK_FADE = 450;
   const WHITE_DELAY = 190;
-  const WHITE_HOLD = 770;
-  const WHITE_FADE = 730;
+  const WHITE_HOLD = 260;
+  const WHITE_FADE = 450;
   const stage = document.getElementById("hero");
   const guides = stage.querySelector(".guides");
   const [verticalGuide, horizontalGuide, diagonalGuide] = guides.querySelectorAll("line");
