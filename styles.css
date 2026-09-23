@@ -27,7 +27,7 @@
 html, body { margin: 0; min-height: 100%; }
 
 body {
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--red);
   color: var(--white);
   font-family: "Manrope", Arial, sans-serif;
@@ -36,17 +36,15 @@ body {
 
 .viewport {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  width: 100%;
   background: var(--red);
 }
 
 .hero {
   width: 100%;
-  height: 100%;
-  position: absolute;
-  inset: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
   overflow: hidden;
   background: var(--red);
   isolation: isolate;
@@ -69,6 +67,8 @@ body {
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
+.guides .guide-erase { stroke: var(--red); stroke-width: 4; stroke-linecap: round; }
+.hero [data-exit] { will-change: transform, opacity; }
 
 .paint-trail { z-index: 2; }
 
@@ -262,6 +262,35 @@ body {
   font-size: calc(16px * var(--s));
 }
 .menu-panel a:hover { color: var(--red); background: var(--white); }
+
+.clay-scene {
+  position: relative;
+  z-index: 9;
+  height: 100vh;
+  overflow: hidden;
+  background: #f72526;
+  user-select: none;
+}
+.clay-reveal {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.clay-hint {
+  position: absolute;
+  right: clamp(24px, 3.4vw, 70px);
+  bottom: clamp(24px, 3.4vw, 70px);
+  margin: 0;
+  color: rgba(255, 255, 255, .8);
+  font-size: clamp(12px, 1vw, 16px);
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .menu-button { transition: none; }

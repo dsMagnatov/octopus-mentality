@@ -15,6 +15,9 @@
           <line x1="0" y1="313" x2="1920" y2="313" />
           <line x1="0" y1="1080" x2="1920" y2="0" />
           <circle cx="960" cy="540" r="468" />
+          <line class="guide-erase" x1="552" y1="1080" x2="552" y2="1080" />
+          <line class="guide-erase" x1="1920" y1="313" x2="1920" y2="313" />
+          <line class="guide-erase" x1="0" y1="1080" x2="0" y2="1080" />
         </svg>
 
         <svg class="paint-trail" id="paint-trail" viewBox="0 0 1920 1080" aria-hidden="true"><g id="trail-strokes" fill="white"></g></svg>
@@ -60,12 +63,24 @@
 
         <nav class="menu-panel" id="menu-panel" aria-label="Page navigation" hidden>
           <a href="#hero">Home</a>
-          <a href="#vision">Vision</a>
-          <a href="#studio">Studio</a>
+          <a href="#clay">Texture</a>
         </nav>
+      </section>
+
+      <section class="clay-scene" id="clay" aria-label="Interactive floral clay relief">
+        <svg class="clay-reveal" id="clay-reveal" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <mask id="clay-brush-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080" style="mask-type: alpha">
+              <path id="clay-brush-path" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+            </mask>
+          </defs>
+          <image id="clay-image" href="./clay-relief.jpg" x="0" y="0" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" mask="url(#clay-brush-mask)" />
+        </svg>
+        <p class="clay-hint">Move to reveal</p>
       </section>
     </main>
     <script src="./cursor-renderer.js" defer></script>
     <script src="./app.js" defer></script>
+    <script src="./scene.js" defer></script>
   </body>
 </html>

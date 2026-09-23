@@ -2,10 +2,10 @@
   "name": "octopus-mentality",
   "version": "1.0.0",
   "private": true,
-  "description": "Interactive Octopus Mentality landing page with a flowing white cursor ribbon",
+  "description": "Two-screen Octopus Mentality site with scroll transitions and brush reveals",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check app.js && node --check cursor-renderer.js && node --check server.mjs"
+    "check": "node --check app.js && node --check scene.js && node --check cursor-renderer.js && node --check server.mjs"
   },
   "engines": { "node": ">=20.11" }
 }

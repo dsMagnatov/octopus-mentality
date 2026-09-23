@@ -86,7 +86,7 @@
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") setMenuOpen(false); });
 
   stage.addEventListener("pointermove", (event) => {
-    if (event.pointerType === "touch" || event.target.closest(".menu-button, .menu-panel, .brand")) {
+    if (window.scrollY > 2 || event.pointerType === "touch" || event.target.closest(".menu-button, .menu-panel, .brand")) {
       stopFollowing(); return;
     }
     const bounds = stage.getBoundingClientRect();
@@ -201,6 +201,7 @@
   function scheduleFrame() {
     if (!animationFrame) animationFrame = requestAnimationFrame(render);
   }
+  window.clearHeroBrush = clearBrush;
   updateLayout();
   window.addEventListener("resize", updateLayout, { passive: true });
   document.fonts.ready.then(measureText);

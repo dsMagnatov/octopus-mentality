@@ -1,6 +1,6 @@
 # Octopus Mentality
 
-Interactive desktop landing page for a creative branding studio.
+Interactive two-screen site for a creative branding studio.
 
 ## Run locally
 
@@ -22,6 +22,8 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 - After stopping, the white reveal fades in 450 ms and the background ribbon in 690 ms.
 - Text touched by the brush turns opaque white like the headings, without a shadow.
 - Desktop layout and brush size scale from a 1920 × 1080 reference.
+- Scrolling wipes the first screen's lines with its background color, erases the circle from the opposite side, and lifts text and octopus upward at staggered times.
+- The second screen begins in the clay relief's base red (`#F72526`). The same wide brush reveals the floral relief beneath that color.
 
 The ribbon uses native WebGL for smooth, soft edges, with an SVG alpha mask revealing the white octopus. It falls back to a white SVG path if WebGL is unavailable. Animation stops completely once the ribbon fades. Its width and timing can be adjusted through the constants at the top of `app.js`.
 
@@ -32,11 +34,12 @@ The motion is inspired by [React Bits Glow Cursor](https://www.reactbits.dev/ani
 - `index.html`: page markup and SVG mask.
 - `styles.css`: layout, typography, and colors.
 - `app.js`: brush animation and navigation.
+- `scene.js`: scroll transition and brush reveal on the clay screen.
 - `cursor-renderer.js`: WebGL ribbon rendering.
 - `server.mjs`: local development server.
-- `image 67.png`, `image 68.png`, `logo.svg`: artwork used by the page.
+- `image 67.png`, `image 68.png`, `clay-relief.jpg`, `logo.svg`: artwork used by the page.
 - `fonts/`: local font files and their SIL Open Font License notices.
 
-Source mockups and unused 3D models are not required to run the site and are excluded from this repository.
+Source mockups and unused 3D models are not required to run the site and are excluded from this repository. `clay-relief.jpg` is included because the second screen needs it.
 
 The static page can also be hosted on a static web server without Node.js.
