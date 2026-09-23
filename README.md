@@ -15,12 +15,12 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 ## Design and interaction
 
 - Anton headings and Manrope body copy, served locally.
-- Red background (`#F52525`) and electric blue headings (`#0019FF`).
+- Red background (`#F52525`) and white headings (`#FFFFFF`).
 - The patterned octopus is visible at first; a smooth brush reveals its white surface under the cursor.
 - A white ribbon follows the cursor, with a uniform 250 px width at the reference size, rounded ends, and no taper.
 - A 31-point following chain bends and catches up naturally, with a short delayed background trail.
 - After stopping, the white reveal fades in 450 ms and the background ribbon in 690 ms.
-- Text touched by the brush turns blue like the headings, without a shadow.
+- Text touched by the brush turns opaque white like the headings, without a shadow.
 - Desktop layout and brush size scale from a 1920 × 1080 reference.
 
 The ribbon uses native WebGL for smooth, soft edges, with an SVG alpha mask revealing the white octopus. It falls back to a white SVG path if WebGL is unavailable. Animation stops completely once the ribbon fades. Its width and timing can be adjusted through the constants at the top of `app.js`.
