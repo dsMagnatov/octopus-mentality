@@ -310,13 +310,14 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor, reveal = nu
       gl.uniform1i(programs.reveal.uniforms.field, 0);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       const output = reveal.canvas;
+      const offset = reveal.offset?.() || { x: 0, y: 0 };
       revealContext.globalCompositeOperation = "source-over";
       revealContext.clearRect(0, 0, output.width, output.height);
       revealContext.drawImage(revealImage, 0, 0, output.width, output.height);
       revealContext.globalCompositeOperation = "destination-in";
       revealContext.drawImage(canvas,
-        revealBounds.x / width * mapWidth,
-        canvas.height - mapHeight + revealBounds.y / height * mapHeight,
+        (revealBounds.x + offset.x) / width * mapWidth,
+        canvas.height - mapHeight + (revealBounds.y + offset.y) / height * mapHeight,
         revealBounds.width / width * mapWidth, revealBounds.height / height * mapHeight,
         0, 0, output.width, output.height);
       revealContext.globalCompositeOperation = "source-over";
@@ -354,6 +355,12 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor, reveal = nu
     const painting = pointer !== null && idle < 90;
     if (ready) drawField(previous, follower, painting, dt, now);
     else {
+      if (reveal) {
+        const offset = reveal.offset?.() || { x: 0, y: 0 };
+        const svgScale = reveal.fallback.viewBox.baseVal.width / revealBounds.width;
+        reveal.fallback.querySelector("mask g").setAttribute("transform",
+          `scale(${svgScale}) translate(${-revealBounds.x - offset.x} ${-revealBounds.y - offset.y})`);
+      }
       if (painting) fallbackSamples.push({ ...follower, time: now });
       fallbackSamples = fallbackSamples.filter((sample) => now - sample.time < 1800);
       if (fallbackSamples.length) {

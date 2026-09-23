@@ -100,7 +100,8 @@ body {
   top: 50%;
   width: calc(922px * var(--s));
   height: calc(922px * var(--s));
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0);
+  will-change: transform, opacity;
   z-index: 4;
   pointer-events: none;
 }

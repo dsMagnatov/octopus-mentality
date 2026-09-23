@@ -6,7 +6,8 @@
     baseColor: [245 / 255, 37 / 255, 37 / 255],
     reveal: {
       canvas: document.getElementById("octopus-reveal-canvas"),
-      fallback: document.getElementById("white-reveal")
+      fallback: document.getElementById("white-reveal"),
+      offset: () => window.octopusParallax
     },
     depth: 0.075,
     enabled: () => window.scrollY <= 2

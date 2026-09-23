@@ -22,7 +22,8 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 - Each painted area fully disappears over roughly two seconds, including while the cursor continues moving elsewhere. No faint ornament remains behind.
 - Text touched by the brush turns opaque white like the headings, without a shadow.
 - Desktop layout and brush size scale from a 1920 × 1080 reference.
-- Scrolling wipes the first screen's lines with its background color, erases the circle from the opposite side, and lifts text and octopus upward at staggered times.
+- The octopus follows the cursor with gently eased parallax (up to 28 px horizontally and 20 px vertically at the reference size). Its reveal mask follows the moving image.
+- Scrolling wipes the first screen's lines with its background color, erases the circle from the opposite side, and lifts text upward at staggered times. The octopus freezes in place and only fades out, without rising or rotating.
 - The second screen begins in the clay relief's base red (`#F72526`). Moving the cursor reveals the floral relief through broad, softly feathered organic patches.
 - Both backgrounds use a stronger, bounded lift with subtle shading changes. Petals move together as they emerge and settle back without stretching their fine edges.
 
@@ -37,7 +38,7 @@ The original cursor motion was inspired by [React Bits Glow Cursor](https://www.
 - `index.html`: page markup and SVG mask.
 - `styles.css`: layout, typography, and colors.
 - `app.js`: responsive hero layout, text hover feedback, and navigation.
-- `scene.js`: staggered scroll transition out of the first screen.
+- `scene.js`: staggered scroll transition, octopus parallax, and its fade in place. Parallax is disabled when reduced motion is preferred.
 - `clay-reveal.js`: configuration for the white hero relief and red second-screen relief.
 - `cursor-renderer.js`: shared WebGL relief renderer, independent trail fading, and SVG fallback.
 - `server.mjs`: local development server.
