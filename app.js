@@ -1,13 +1,14 @@
 (() => {
   const SVG_NS = "http://www.w3.org/2000/svg";
   const BRUSH_RADIUS = 190;
-  const TAIL_LENGTH = 1100;
-  const FOLLOW_TIME = 38;
-  const MASK_HOLD = 100;
-  const MASK_FADE = 450;
-  const WHITE_DELAY = 190;
-  const WHITE_HOLD = 260;
-  const WHITE_FADE = 450;
+  const POINT_COUNT = 31;
+  const HEAD_FOLLOW_TIME = 70;
+  const CHAIN_FOLLOW_TIME = 38;
+  const MASK_HOLD = 80;
+  const MASK_FADE = 370;
+  const TRAIL_DELAY = 90;
+  const TRAIL_HOLD = 180;
+  const TRAIL_FADE = 420;
   const stage = document.getElementById("hero");
   const guides = stage.querySelector(".guides");
   const [verticalGuide, horizontalGuide, diagonalGuide] = guides.querySelectorAll("line");
@@ -15,21 +16,47 @@
   const trailSvg = document.getElementById("paint-trail");
   const trailGroup = document.getElementById("trail-strokes");
   const maskGroup = document.getElementById("mask-strokes");
+  const renderer = window.createCursorRenderer(document.getElementById("glow-trail"), trailSvg);
+  const maskPath = document.createElementNS(SVG_NS, "path");
+  const trailPath = document.createElementNS(SVG_NS, "path");
+  const gradient = document.createElementNS(SVG_NS, "linearGradient");
+  gradient.id = "ribbon-colors";
+  gradient.setAttribute("gradientUnits", "userSpaceOnUse");
+  [["0%", "#2E61CE"], ["52%", "#92FFF6"], ["100%", "#FFFFFF"]].forEach(([offset, color]) => {
+    const stop = document.createElementNS(SVG_NS, "stop");
+    stop.setAttribute("offset", offset);
+    stop.setAttribute("stop-color", color);
+    gradient.append(stop);
+  });
+  const definitions = document.createElementNS(SVG_NS, "defs");
+  definitions.append(gradient);
+  trailSvg.prepend(definitions);
+  trailPath.setAttribute("fill", "url(#ribbon-colors)");
+  trailGroup.append(trailPath);
+  maskGroup.append(maskPath);
   const menuButton = document.getElementById("menu-button");
   const menuPanel = document.getElementById("menu-panel");
   const menuLabel = document.getElementById("menu-label");
   const textTargets = Array.from(stage.querySelectorAll(".eyebrow, .support-copy, .footer-note, .studio-copy h2, .studio-copy p"));
   let layout = { width: 0, height: 0, scale: 1 };
   let textRects = [];
-  const strokes = [];
-  let activeStroke = null;
+  let chain = [];
+  let history = [];
   let pointer = null;
-  let follower = null;
   let lastInputTime = 0;
   let lastFrameTime = 0;
   let animationFrame = 0;
 
-  function stopFollowing() { activeStroke = null; pointer = null; follower = null; }
+  function stopFollowing() { pointer = null; }
+  function clearBrush() {
+    chain = [];
+    history = [];
+    stopFollowing();
+    maskPath.setAttribute("d", "");
+    trailPath.setAttribute("d", "");
+    renderer.draw([], 0);
+    textTargets.forEach((element) => element.classList.remove("brush-touched"));
+  }
   function setGuide(line, x1, y1, x2, y2) {
     Object.entries({ x1, y1, x2, y2 }).forEach(([key, value]) => line.setAttribute(key, value));
   }
@@ -57,11 +84,8 @@
     circleGuide.setAttribute("cx", width / 2);
     circleGuide.setAttribute("cy", height / 2);
     circleGuide.setAttribute("r", 468 * scale);
-    strokes.length = 0;
-    trailGroup.replaceChildren();
-    maskGroup.replaceChildren();
-    stopFollowing();
-    textTargets.forEach((element) => element.classList.remove("brush-touched"));
+    renderer.resize(width, height);
+    clearBrush();
     measureText();
   }
   function setMenuOpen(open) {
@@ -73,23 +97,17 @@
   menuPanel.addEventListener("click", (event) => { if (event.target.closest("a")) setMenuOpen(false); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") setMenuOpen(false); });
 
-  function beginStroke(point) {
-    const maskPath = document.createElementNS(SVG_NS, "path");
-    const trailPath = document.createElementNS(SVG_NS, "path");
-    maskGroup.append(maskPath);
-    trailGroup.append(trailPath);
-    activeStroke = { points: [point], maskPath, trailPath, maskKey: "", trailKey: "" };
-    strokes.push(activeStroke);
-    follower = { ...point };
-  }
   stage.addEventListener("pointermove", (event) => {
     if (event.pointerType === "touch" || event.target.closest(".menu-button, .menu-panel, .brand")) {
       stopFollowing(); return;
     }
     const bounds = stage.getBoundingClientRect();
     const now = performance.now();
-    pointer = { x: event.clientX - bounds.left, y: event.clientY - bounds.top, time: now };
-    if (!activeStroke || now - lastInputTime > 400) beginStroke(pointer);
+    pointer = { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+    if (!chain.length) {
+      chain = Array.from({ length: POINT_COUNT }, () => ({ ...pointer }));
+      lastFrameTime = now;
+    }
     lastInputTime = now;
     scheduleFrame();
   }, { passive: true });
@@ -100,66 +118,53 @@
     const t = Math.max(0, Math.min(1, value));
     return 1 - t * t * (3 - 2 * t);
   }
-  function updateFollower(now) {
-    if (!pointer || !follower || !activeStroke) return;
-    const dt = Math.min(64, Math.max(1, now - (lastFrameTime || now - 16)));
-    const amount = 1 - Math.exp(-dt / FOLLOW_TIME);
-    const dx = pointer.x - follower.x;
-    const dy = pointer.y - follower.y;
-    if (Math.hypot(dx, dy) < .15 * layout.scale) return;
-    const next = { x: follower.x + dx * amount, y: follower.y + dy * amount, time: now };
-    activeStroke.points.push(next);
-    follower = next;
+  // A following chain bends and catches up continuously, instead of storing a
+  // stationary line. Small time steps keep its feel consistent at 60 / 120 Hz.
+  function updateChain(now) {
+    const dt = Math.min(50, Math.max(0, now - lastFrameTime));
+    const steps = Math.max(1, Math.ceil(dt / (1000 / 120)));
+    const headEase = 1 - Math.exp(-dt / steps / HEAD_FOLLOW_TIME);
+    const tailEase = 1 - Math.exp(-dt / steps / CHAIN_FOLLOW_TIME);
+    for (let step = 0; step < steps; step++) {
+      if (pointer) {
+        chain[0].x += (pointer.x - chain[0].x) * headEase;
+        chain[0].y += (pointer.y - chain[0].y) * headEase;
+      }
+      for (let i = 1; i < chain.length; i++) {
+        chain[i].x += (chain[i - 1].x - chain[i].x) * tailEase;
+        chain[i].y += (chain[i - 1].y - chain[i].y) * tailEase;
+      }
+    }
   }
   function interpolate(a, b, t) {
-    return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t,
-      time: a.time + (b.time - a.time) * t };
+    return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
   }
-  // Interpolate the delayed head between input samples to avoid visible stepping.
-  function pointsAtTime(points, time) {
-    const result = [];
-    for (let i = 0; i < points.length; i++) {
-      if (points[i].time <= time) result.push(points[i]);
-      else {
-        if (i > 0) result.push(interpolate(points[i - 1], points[i],
-          (time - points[i - 1].time) / (points[i].time - points[i - 1].time)));
-        break;
-      }
-    }
-    return result;
+  function delayedChain(now) {
+    const time = now - TRAIL_DELAY;
+    while (history.length > 2 && history[1].time <= time) history.shift();
+    if (!history.length || history[0].time > time) return [];
+    if (history.length < 2) return history[0].points;
+    const [a, b] = history;
+    const amount = Math.max(0, Math.min(1, (time - a.time) / (b.time - a.time)));
+    return a.points.map((point, i) => interpolate(point, b.points[i], amount));
   }
-  // Quadratic midpoint splines round corners without overshooting the pointer path.
-  function smoothCenterline(points) {
-    if (points.length < 3) return points;
-    const result = [points[0]];
-    let start = points[0];
-    for (let i = 1; i < points.length; i++) {
-      const control = points[i];
-      const end = i === points.length - 1 ? control : interpolate(control, points[i + 1], .5);
-      const length = Math.hypot(control.x - start.x, control.y - start.y)
-        + Math.hypot(end.x - control.x, end.y - control.y);
-      const steps = Math.max(1, Math.ceil(length / (12 * layout.scale)));
-      for (let j = 1; j <= steps; j++) {
-        const t = j / steps;
-        result.push(interpolate(interpolate(start, control, t), interpolate(control, end, t), t));
-      }
-      start = end;
-    }
-    return result;
+  function makeFootprint(points) {
+    let length = 0;
+    const distances = points.map((point, i) => {
+      if (i) length += Math.hypot(point.x - points[i - 1].x, point.y - points[i - 1].y);
+      return length;
+    });
+    return points.map((point, i) => {
+      // Taper by actual distance so overlapping nodes at the start of a motion
+      // form a pointed tail, rather than an extra round head.
+      const progress = length > .5 ? distances[i] / length : i / (POINT_COUNT - 1);
+      return { ...point, progress,
+        radius: Math.max(.1, BRUSH_RADIUS * layout.scale * Math.pow(1 - progress, .85)) };
+    });
   }
   const number = (value) => Math.round(value * 100) / 100;
   const xy = (x, y) => number(x) + " " + number(y);
-  function makeBrushPath(points) {
-    const centers = smoothCenterline(points);
-    const footprint = [];
-    let distance = 0;
-    for (let i = centers.length - 1; i >= 0; i--) {
-      if (i < centers.length - 1) distance += Math.hypot(centers[i + 1].x - centers[i].x, centers[i + 1].y - centers[i].y);
-      const remaining = 1 - distance / (TAIL_LENGTH * layout.scale);
-      if (remaining <= 0) break;
-      const radius = BRUSH_RADIUS * layout.scale * Math.sin(remaining * Math.PI / 2);
-      footprint.push({ ...centers[i], radius });
-    }
+  function makeBrushPath(footprint) {
     // Union round disks and tangent connectors; consistent winding keeps loops solid.
     const parts = [];
     footprint.forEach((point, i) => {
@@ -184,7 +189,7 @@
         + "L" + xy(previous.x + rx * previous.radius, previous.y + ry * previous.radius)
         + "L" + xy(x + rx * r, y + ry * r) + "L" + xy(x + lx * r, y + ly * r) + "Z");
     });
-    return { path: parts.join(""), footprint };
+    return parts.join("");
   }
   function brushTouchesRect(footprint, rect) {
     return footprint.some((point) => {
@@ -193,42 +198,33 @@
       return dx * dx + dy * dy <= point.radius * point.radius;
     });
   }
-  function updatePath(stroke, kind, points, opacity) {
-    const element = stroke[kind + "Path"];
-    element.setAttribute("opacity", number(opacity));
-    if (!points.length || opacity <= 0) return null;
-    const key = points.length + ":" + points[0].time + ":" + points[points.length - 1].time;
-    if (stroke[kind + "Key"] !== key) {
-      stroke[kind + "Brush"] = makeBrushPath(points);
-      stroke[kind + "Key"] = key;
-      element.setAttribute("d", stroke[kind + "Brush"].path);
-    }
-    return stroke[kind + "Brush"];
-  }
   function render(now) {
     animationFrame = 0;
-    updateFollower(now);
+    if (!chain.length) return;
+    const idle = now - lastInputTime;
+    if (idle >= TRAIL_DELAY + TRAIL_HOLD + TRAIL_FADE) { clearBrush(); return; }
+    updateChain(now);
     lastFrameTime = now;
-    const touchedText = new Set();
-    for (let i = strokes.length - 1; i >= 0; i--) {
-      const stroke = strokes[i];
-      const idle = now - stroke.points[stroke.points.length - 1].time;
-      if (idle > WHITE_DELAY + WHITE_HOLD + WHITE_FADE) {
-        stroke.maskPath.remove(); stroke.trailPath.remove(); strokes.splice(i, 1); continue;
-      }
-      while (stroke.points.length > 2 && now - stroke.points[1].time > 2200) stroke.points.shift();
-      const maskOpacity = smoothFade((idle - MASK_HOLD) / MASK_FADE);
-      const maskBrush = updatePath(stroke, "mask", stroke.points, maskOpacity);
-      const delayed = pointsAtTime(stroke.points, now - WHITE_DELAY);
-      const trailOpacity = delayed.length ? smoothFade((idle - WHITE_DELAY - WHITE_HOLD) / WHITE_FADE) : 0;
-      const trailBrush = updatePath(stroke, "trail", delayed, trailOpacity);
-      textRects.forEach((rect, index) => {
-        if ((maskOpacity > .12 && maskBrush && brushTouchesRect(maskBrush.footprint, rect))
-          || (trailOpacity > .12 && trailBrush && brushTouchesRect(trailBrush.footprint, rect))) touchedText.add(index);
-      });
+    history.push({ time: now, points: chain.map((point) => ({ ...point })) });
+    const mask = makeFootprint(chain);
+    const trail = makeFootprint(delayedChain(now));
+    const maskOpacity = smoothFade((idle - MASK_HOLD) / MASK_FADE);
+    const trailOpacity = smoothFade((idle - TRAIL_DELAY - TRAIL_HOLD) / TRAIL_FADE);
+    maskPath.setAttribute("d", makeBrushPath(mask));
+    maskPath.setAttribute("opacity", number(maskOpacity));
+    trailPath.setAttribute("d", makeBrushPath(trail));
+    trailPath.setAttribute("opacity", number(trailOpacity));
+    if (trail.length) {
+      gradient.setAttribute("x1", trail[trail.length - 1].x);
+      gradient.setAttribute("y1", trail[trail.length - 1].y);
+      gradient.setAttribute("x2", trail[0].x + .01);
+      gradient.setAttribute("y2", trail[0].y);
     }
-    textTargets.forEach((element, index) => element.classList.toggle("brush-touched", touchedText.has(index)));
-    if (strokes.length) scheduleFrame();
+    renderer.draw(trail, trailOpacity);
+    textTargets.forEach((element, i) => element.classList.toggle("brush-touched",
+      (maskOpacity > .12 && brushTouchesRect(mask, textRects[i]))
+      || (trailOpacity > .12 && brushTouchesRect(trail, textRects[i]))));
+    scheduleFrame();
   }
   function scheduleFrame() {
     if (!animationFrame) animationFrame = requestAnimationFrame(render);

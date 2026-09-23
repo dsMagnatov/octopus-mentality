@@ -16,18 +16,23 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 
 - Anton headings and Manrope body copy, served locally.
 - Red background (`#F52525`) and mint headings (`#92FFF6`).
-- A smooth SVG brush reveals the octopus ornament under the cursor.
-- A delayed white trail lingers on the background, then fades away.
+- A smooth brush reveals the octopus ornament under the cursor.
+- A broad ribbon follows the cursor: porcelain white → mint (`#92FFF6`) → ornament blue (`#2E61CE`).
+- A 31-point following chain bends and catches up naturally, with a short delayed background trail.
+- After stopping, the ornament fades in 450 ms and the background ribbon in 690 ms.
 - Text touched by the brush turns mint without a shadow.
 - Desktop layout and brush size scale from a 1920 × 1080 reference.
 
-The brush uses frame-based pointer smoothing, quadratic curves, and an SVG alpha mask. Its width and timing can be adjusted through the constants at the top of `app.js`.
+The ribbon uses native WebGL for seamless color blending and soft edges, with an SVG alpha mask revealing the ornament. It falls back to an SVG gradient if WebGL is unavailable. Animation stops completely once the ribbon fades. Its width and timing can be adjusted through the constants at the top of `app.js`; the palette is in `cursor-renderer.js` and the SVG fallback in `app.js`.
+
+The motion is inspired by [React Bits Glow Cursor](https://www.reactbits.dev/animations/glow-cursor?trailLength=31) ([reference source](https://github.com/DavidHDev/react-bits/blob/main/src/content/Animations/GlowCursor/GlowCursor.jsx)). This project implements its own renderer and following chain in plain JavaScript, with no React, OGL, or runtime dependencies.
 
 ## Files
 
 - `index.html`: page markup and SVG mask.
 - `styles.css`: layout, typography, and colors.
 - `app.js`: brush animation and navigation.
+- `cursor-renderer.js`: WebGL ribbon rendering and color palette.
 - `server.mjs`: local development server.
 - `image 67.png`, `image 68.png`, `logo.svg`: artwork used by the page.
 - `fonts/`: local font files and their SIL Open Font License notices.
