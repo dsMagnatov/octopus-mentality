@@ -2,7 +2,7 @@
   "name": "octopus-mentality",
   "version": "1.0.0",
   "private": true,
-  "description": "Interactive Octopus Mentality landing page with a flowing multicolor cursor ribbon",
+  "description": "Interactive Octopus Mentality landing page with a flowing white cursor ribbon",
   "scripts": {
     "start": "node server.mjs",
     "check": "node --check app.js && node --check cursor-renderer.js && node --check server.mjs"

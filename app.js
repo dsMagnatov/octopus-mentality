@@ -1,6 +1,6 @@
 (() => {
   const SVG_NS = "http://www.w3.org/2000/svg";
-  const BRUSH_RADIUS = 190;
+  const BRUSH_WIDTH = 250;
   const POINT_COUNT = 31;
   const HEAD_FOLLOW_TIME = 70;
   const CHAIN_FOLLOW_TIME = 38;
@@ -19,19 +19,7 @@
   const renderer = window.createCursorRenderer(document.getElementById("glow-trail"), trailSvg);
   const maskPath = document.createElementNS(SVG_NS, "path");
   const trailPath = document.createElementNS(SVG_NS, "path");
-  const gradient = document.createElementNS(SVG_NS, "linearGradient");
-  gradient.id = "ribbon-colors";
-  gradient.setAttribute("gradientUnits", "userSpaceOnUse");
-  [["0%", "#2E61CE"], ["52%", "#92FFF6"], ["100%", "#FFFFFF"]].forEach(([offset, color]) => {
-    const stop = document.createElementNS(SVG_NS, "stop");
-    stop.setAttribute("offset", offset);
-    stop.setAttribute("stop-color", color);
-    gradient.append(stop);
-  });
-  const definitions = document.createElementNS(SVG_NS, "defs");
-  definitions.append(gradient);
-  trailSvg.prepend(definitions);
-  trailPath.setAttribute("fill", "url(#ribbon-colors)");
+  trailPath.setAttribute("fill", "white");
   trailGroup.append(trailPath);
   maskGroup.append(maskPath);
   const menuButton = document.getElementById("menu-button");
@@ -149,18 +137,8 @@
     return a.points.map((point, i) => interpolate(point, b.points[i], amount));
   }
   function makeFootprint(points) {
-    let length = 0;
-    const distances = points.map((point, i) => {
-      if (i) length += Math.hypot(point.x - points[i - 1].x, point.y - points[i - 1].y);
-      return length;
-    });
-    return points.map((point, i) => {
-      // Taper by actual distance so overlapping nodes at the start of a motion
-      // form a pointed tail, rather than an extra round head.
-      const progress = length > .5 ? distances[i] / length : i / (POINT_COUNT - 1);
-      return { ...point, progress,
-        radius: Math.max(.1, BRUSH_RADIUS * layout.scale * Math.pow(1 - progress, .85)) };
-    });
+    const radius = BRUSH_WIDTH * layout.scale / 2;
+    return points.map((point) => ({ ...point, radius }));
   }
   const number = (value) => Math.round(value * 100) / 100;
   const xy = (x, y) => number(x) + " " + number(y);
@@ -214,12 +192,6 @@
     maskPath.setAttribute("opacity", number(maskOpacity));
     trailPath.setAttribute("d", makeBrushPath(trail));
     trailPath.setAttribute("opacity", number(trailOpacity));
-    if (trail.length) {
-      gradient.setAttribute("x1", trail[trail.length - 1].x);
-      gradient.setAttribute("y1", trail[trail.length - 1].y);
-      gradient.setAttribute("x2", trail[0].x + .01);
-      gradient.setAttribute("y2", trail[0].y);
-    }
     renderer.draw(trail, trailOpacity);
     textTargets.forEach((element, i) => element.classList.toggle("brush-touched",
       (maskOpacity > .12 && brushTouchesRect(mask, textRects[i]))
