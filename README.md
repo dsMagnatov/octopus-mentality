@@ -18,25 +18,25 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 - Red background (`#F52525`) and white headings (`#FFFFFF`).
 - The patterned octopus is visible at first; a smooth brush reveals its white surface under the cursor.
 - The first screen's red background hides a white floral relief. Cursor movement reveals it through soft organic patches behind the octopus and typography.
-- A 31-point following chain paints the octopus white with a uniform 250 px width at the reference size, rounded ends, and no taper.
-- After stopping, the octopus's white reveal fades in 450 ms. Each part of the background relief fades independently over roughly two seconds.
+- The octopus and background share one soft organic mask, including the same feathered edges, cursor movement, and fading.
+- Each painted area fully disappears over roughly two seconds, including while the cursor continues moving elsewhere. No faint ornament remains behind.
 - Text touched by the brush turns opaque white like the headings, without a shadow.
 - Desktop layout and brush size scale from a 1920 × 1080 reference.
 - Scrolling wipes the first screen's lines with its background color, erases the circle from the opposite side, and lifts text and octopus upward at staggered times.
 - The second screen begins in the clay relief's base red (`#F72526`). Moving the cursor reveals the floral relief through broad, softly feathered organic patches.
 - Both backgrounds use a stronger, bounded lift with subtle shading changes. Petals move together as they emerge and settle back without stretching their fine edges.
 
-An SVG alpha mask reveals the white octopus. Its brush width and timing can be adjusted through the constants at the top of `app.js`.
+The white octopus is composited on a transparent foreground canvas using the background renderer's exact mask. Without WebGL, both layers reuse the same blurred SVG path.
 
-Both relief backgrounds share the native WebGL renderer in `cursor-renderer.js`, configured by `clay-reveal.js`. Two small texture buffers per screen retain and soften the cursor trail; a second shader blends the relief into the flat background. The renderer stops after 2.6 seconds of inactivity and clears when the section leaves the viewport. The hero's reveal also clears at the start of its scroll transition. A blurred SVG mask provides a fallback without WebGL. `REVEAL_RADIUS` controls the soft outer extent, `TRAIL_LIFETIME` controls the inactivity cutoff, and the `depth` setting controls the rise. Reduced-motion mode disables the displacement and animated shading. No additional dependencies are required.
+Both relief backgrounds share the native WebGL renderer in `cursor-renderer.js`, configured by `clay-reveal.js`. Two small texture buffers per screen retain and soften the cursor trail; the mask is stored across two color channels so small opacity changes do not round away at high refresh rates. Decay uses elapsed time and includes a finite cleanup, so old areas reach zero even during continuous painting. A second shader blends the relief into the flat background. The renderer stops after 2.6 seconds of inactivity and clears when the section leaves the viewport. The hero's reveal also clears at the start of its scroll transition. A blurred SVG mask provides a fallback without WebGL. `REVEAL_RADIUS` controls the soft outer extent, `TRAIL_LIFETIME` controls the inactivity cutoff, and the `depth` setting controls the rise. Reduced-motion mode disables the displacement and animated shading. No additional dependencies are required.
 
-The motion is inspired by [React Bits Glow Cursor](https://www.reactbits.dev/animations/glow-cursor?trailLength=31) ([reference source](https://github.com/DavidHDev/react-bits/blob/main/src/content/Animations/GlowCursor/GlowCursor.jsx)). This project implements its own renderer and following chain in plain JavaScript, with no React, OGL, or runtime dependencies.
+The original cursor motion was inspired by [React Bits Glow Cursor](https://www.reactbits.dev/animations/glow-cursor?trailLength=31) ([reference source](https://github.com/DavidHDev/react-bits/blob/main/src/content/Animations/GlowCursor/GlowCursor.jsx)). The current relief renderer is implemented in plain JavaScript, with no React, OGL, or runtime dependencies.
 
 ## Files
 
 - `index.html`: page markup and SVG mask.
 - `styles.css`: layout, typography, and colors.
-- `app.js`: brush animation and navigation.
+- `app.js`: responsive hero layout, text hover feedback, and navigation.
 - `scene.js`: staggered scroll transition out of the first screen.
 - `clay-reveal.js`: configuration for the white hero relief and red second-screen relief.
 - `cursor-renderer.js`: shared WebGL relief renderer, independent trail fading, and SVG fallback.

@@ -17,7 +17,7 @@
               <feGaussianBlur stdDeviation="42" />
             </filter>
             <mask id="hero-relief-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080" style="mask-type: alpha">
-              <path data-relief-path fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" filter="url(#hero-relief-soft-edge)" />
+              <path id="hero-relief-path" data-relief-path fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" filter="url(#hero-relief-soft-edge)" />
             </mask>
           </defs>
           <image href="./white-relief.png" x="0" y="0" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" mask="url(#hero-relief-mask)" />
@@ -37,10 +37,11 @@
 
         <div class="octopus" aria-label="A patterned octopus whose white surface appears where the cursor passes">
           <img src="./image 67.png" alt="Glossy octopus with blue floral ornament" draggable="false" />
+          <canvas id="octopus-reveal-canvas" aria-hidden="true"></canvas>
           <svg id="white-reveal" viewBox="0 0 922 922" aria-hidden="true">
             <defs>
               <mask id="brush-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="922" height="922" style="mask-type: alpha">
-                <g id="mask-strokes" fill="white"></g>
+                <g id="mask-strokes"><use href="#hero-relief-path" /></g>
               </mask>
             </defs>
             <image href="./image 68.png" width="922" height="922" mask="url(#brush-mask)" />

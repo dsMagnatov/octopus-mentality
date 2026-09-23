@@ -4,6 +4,10 @@
     canvas: document.getElementById("hero-relief-canvas"),
     fallback: document.getElementById("hero-relief"),
     baseColor: [245 / 255, 37 / 255, 37 / 255],
+    reveal: {
+      canvas: document.getElementById("octopus-reveal-canvas"),
+      fallback: document.getElementById("white-reveal")
+    },
     depth: 0.075,
     enabled: () => window.scrollY <= 2
   });

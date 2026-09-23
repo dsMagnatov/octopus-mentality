@@ -1,5 +1,5 @@
 // Shared, dependency-free relief reveal for the hero and the clay screen.
-window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
+window.createReliefRenderer = ({ stage, canvas, fallback, baseColor, reveal = null,
   depth = 0.075, enabled = () => true }) => {
   const fallbackPath = fallback.querySelector("[data-relief-path]");
   const fallbackMask = fallback.querySelector("mask");
@@ -8,9 +8,12 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
   // The center is about 250px wide; the broad feather removes the brush outline.
   const REVEAL_RADIUS = 270;
   const TRAIL_LIFETIME = 2600;
-  const gl = canvas.getContext("webgl", { alpha: false, depth: false,
+  const gl = canvas.getContext("webgl", { alpha: true, depth: false,
     stencil: false, antialias: false, premultipliedAlpha: false });
   const artwork = new Image();
+  const revealImage = reveal ? new Image() : null;
+  const revealContext = reveal?.canvas.getContext("2d");
+  let revealBounds = null;
   let ready = false;
   let width = 1, height = 1, scale = 1;
   let mapWidth = 1, mapHeight = 1;
@@ -32,6 +35,17 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
       gl_Position = vec4(position, 0.0, 1.0);
     }
   `;
+  // Store the mask across two 8-bit channels. A single channel rounds tiny
+  // frame-to-frame decay back up, leaving a visible residue at 144/240 Hz.
+  const maskSource = `
+    float readInk(vec2 position) {
+      vec2 encoded = texture2D(field, position).rg;
+      return encoded.r + encoded.g / 255.0;
+    }
+    float revealAmount(vec2 position) {
+      return smoothstep(0.025, 0.78, readInk(position));
+    }
+  `;
   const fieldSource = `
     precision highp float;
     varying vec2 uv;
@@ -46,19 +60,26 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
     uniform float time;
     uniform float motion;
 
+    float readPrevious(vec2 position) {
+      vec2 encoded = texture2D(previous, position).rg;
+      return encoded.r + encoded.g / 255.0;
+    }
+
     void main() {
       vec2 pixel = uv * resolution;
       // A slowly moving flow and diffusion soften old paint in place.
       vec2 flow = vec2(sin(pixel.y * 0.012 + time * 0.37),
                        cos(pixel.x * 0.011 - time * 0.29));
       vec2 sampleUV = uv - flow * 8.0 * dt * motion / resolution;
-      float center = texture2D(previous, sampleUV).r;
-      float nearby = texture2D(previous, sampleUV + vec2(texel.x, 0.0)).r;
-      nearby += texture2D(previous, sampleUV - vec2(texel.x, 0.0)).r;
-      nearby += texture2D(previous, sampleUV + vec2(0.0, texel.y)).r;
-      nearby += texture2D(previous, sampleUV - vec2(0.0, texel.y)).r;
+      float center = readPrevious(sampleUV);
+      float nearby = readPrevious(sampleUV + vec2(texel.x, 0.0));
+      nearby += readPrevious(sampleUV - vec2(texel.x, 0.0));
+      nearby += readPrevious(sampleUV + vec2(0.0, texel.y));
+      nearby += readPrevious(sampleUV - vec2(0.0, texel.y));
       float ink = mix(center, nearby * 0.25, min(dt * 8.0, 0.28));
-      ink = max(0.0, ink * exp(-dt * 1.25) - dt * 0.026);
+      // Linear cleanup gives every painted area a finite lifetime, even while
+      // the pointer keeps painting elsewhere. Use elapsed time, not frame count.
+      ink = max(0.0, ink * exp(-dt * 1.25) - dt * 0.10);
       vec2 segment = end - start;
       float along = clamp(dot(pixel - start, segment) / max(dot(segment, segment), 0.01), 0.0, 1.0);
       float distance = length(pixel - mix(start, end, along));
@@ -67,7 +88,8 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
       float spread = radius * (1.0 + wave * 0.13);
       float brush = 1.0 - smoothstep(0.28, 1.0, distance / spread);
       ink = max(ink, brush * paint);
-      gl_FragColor = vec4(ink, 0.0, 0.0, 1.0);
+      float scaledInk = clamp(ink, 0.0, 1.0) * 255.0;
+      gl_FragColor = vec4(floor(scaledInk) / 255.0, fract(scaledInk), 0.0, 1.0);
     }
   `;
   const reliefSource = `
@@ -80,11 +102,11 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
     uniform vec3 baseColor;
     uniform float motion;
     uniform float depth;
+    ${maskSource}
 
     float light(vec3 color) { return dot(color, vec3(0.299, 0.587, 0.114)); }
     void main() {
-      float ink = texture2D(field, uv).r;
-      float amount = smoothstep(0.025, 0.78, ink);
+      float amount = revealAmount(uv);
       vec2 imageUV = (uv - 0.5) * cover + 0.5;
       // The relief's shading drives a bounded rise, strongest halfway through
       // the reveal. Fully revealed artwork returns to its original position.
@@ -101,13 +123,18 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
       imageUV += lift * depth * emergence * motion;
       vec3 relief = texture2D(artwork, imageUV).rgb;
       float localLight = (left + right + down + up) * 0.25;
-      float detail = abs(light(relief) - localLight);
       // Accentuate existing highlights and contact shadows only during the rise.
       relief += (light(relief) - localLight) * 0.18 * emergence * motion;
       relief = clamp(relief, 0.0, 1.0);
-      amount = clamp(amount + detail * 3.0 * amount * (1.0 - amount), 0.0, 1.0);
       gl_FragColor = vec4(mix(baseColor, relief, amount), 1.0);
     }
+  `;
+  const revealSource = `
+    precision highp float;
+    varying vec2 uv;
+    uniform sampler2D field;
+    ${maskSource}
+    void main() { gl_FragColor = vec4(1.0, 1.0, 1.0, revealAmount(uv)); }
   `;
 
   function compile(type, source) {
@@ -157,13 +184,20 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
     ready = false;
     canvas.style.display = "none";
     fallback.style.display = "block";
+    if (reveal) {
+      reveal.canvas.style.display = "none";
+      reveal.fallback.style.display = "";
+    }
   }
   function initialize() {
     if (!gl || !artwork.complete || !artwork.naturalWidth) { showFallback(); return; }
     try {
+      // Dithering belongs on colors, not on a packed numerical mask.
+      gl.disable(gl.DITHER);
       programs = {
         field: program(fieldSource, ["previous", "resolution", "texel", "start", "end", "radius", "paint", "dt", "time", "motion"]),
-        relief: program(reliefSource, ["field", "artwork", "cover", "imageTexel", "baseColor", "motion", "depth"])
+        relief: program(reliefSource, ["field", "artwork", "cover", "imageTexel", "baseColor", "motion", "depth"]),
+        reveal: reveal ? program(revealSource, ["field"]) : null
       };
       triangle = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, triangle);
@@ -188,6 +222,7 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
     lastInput = -Infinity;
     fallbackSamples = [];
     fallbackPath.setAttribute("d", "");
+    if (revealContext) revealContext.clearRect(0, 0, reveal.canvas.width, reveal.canvas.height);
     if (!ready) return;
     gl.clearColor(0, 0, 0, 1);
     surfaces.forEach((surface) => {
@@ -210,6 +245,18 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
     });
     fallbackPath.setAttribute("stroke-width", 340 * scale);
     fallback.querySelector("feGaussianBlur").setAttribute("stdDeviation", 52 * scale);
+    if (reveal) {
+      const parent = reveal.canvas.parentElement;
+      const style = getComputedStyle(parent);
+      const bounds = { width: parseFloat(style.width), height: parseFloat(style.height) };
+      // Layout coordinates exclude the scroll-exit transform and also work
+      // when the reveal canvas is hidden or the page reloads halfway down.
+      revealBounds = { x: parseFloat(style.left) - bounds.width / 2,
+        y: parseFloat(style.top) - bounds.height / 2, ...bounds };
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+      reveal.canvas.width = Math.max(1, Math.round(bounds.width * ratio));
+      reveal.canvas.height = Math.max(1, Math.round(bounds.height * ratio));
+    }
     if (ready) {
       const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.round(width * ratio);
@@ -254,6 +301,28 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
     currentSurface = next;
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (revealContext && revealImage.naturalWidth) {
+      // Render the SAME field as alpha at its small native resolution, then
+      // copy its octopus crop to the foreground canvas. No readPixels or data URLs.
+      gl.viewport(0, 0, mapWidth, mapHeight);
+      use(programs.reveal);
+      bindTexture(0, surfaces[currentSurface].image);
+      gl.uniform1i(programs.reveal.uniforms.field, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      const output = reveal.canvas;
+      revealContext.globalCompositeOperation = "source-over";
+      revealContext.clearRect(0, 0, output.width, output.height);
+      revealContext.drawImage(revealImage, 0, 0, output.width, output.height);
+      revealContext.globalCompositeOperation = "destination-in";
+      revealContext.drawImage(canvas,
+        revealBounds.x / width * mapWidth,
+        canvas.height - mapHeight + revealBounds.y / height * mapHeight,
+        revealBounds.width / width * mapWidth, revealBounds.height / height * mapHeight,
+        0, 0, output.width, output.height);
+      revealContext.globalCompositeOperation = "source-over";
+      output.style.display = "block";
+      reveal.fallback.style.display = "none";
+    }
     gl.viewport(0, 0, canvas.width, canvas.height);
     use(relief);
     bindTexture(0, surfaces[currentSurface].image);
@@ -273,7 +342,7 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
     animationFrame = 0;
     if (!follower) return;
     if (!enabled()) { reset(); return; }
-    const dt = Math.min(.05, Math.max(.001, (now - lastFrame) / 1000));
+    const dt = Math.max(.001, (now - lastFrame) / 1000);
     const idle = now - lastInput;
     if (idle > TRAIL_LIFETIME) { reset(); return; }
     const previous = { ...follower };
@@ -326,6 +395,7 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor,
   artwork.addEventListener("load", initialize);
   artwork.addEventListener("error", showFallback);
   artwork.src = fallbackImage.getAttribute("href");
+  if (revealImage) revealImage.src = reveal.fallback.querySelector("image").getAttribute("href");
   resize();
   return { reset };
 };

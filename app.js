@@ -1,5 +1,4 @@
 (() => {
-  const SVG_NS = "http://www.w3.org/2000/svg";
   const BRUSH_WIDTH = 250;
   const POINT_COUNT = 31;
   const HEAD_FOLLOW_TIME = 70;
@@ -11,8 +10,6 @@
   const [verticalGuide, horizontalGuide, diagonalGuide] = guides.querySelectorAll("line");
   const circleGuide = guides.querySelector("circle");
   const maskGroup = document.getElementById("mask-strokes");
-  const maskPath = document.createElementNS(SVG_NS, "path");
-  maskGroup.append(maskPath);
   const menuButton = document.getElementById("menu-button");
   const menuPanel = document.getElementById("menu-panel");
   const menuLabel = document.getElementById("menu-label");
@@ -31,7 +28,6 @@
     animationFrame = 0;
     chain = [];
     stopFollowing();
-    maskPath.setAttribute("d", "");
     textTargets.forEach((element) => element.classList.remove("brush-touched"));
   }
   function setGuide(line, x1, y1, x2, y2) {
@@ -115,35 +111,6 @@
     const radius = BRUSH_WIDTH * layout.scale / 2;
     return points.map((point) => ({ ...point, radius }));
   }
-  const number = (value) => Math.round(value * 100) / 100;
-  const xy = (x, y) => number(x) + " " + number(y);
-  function makeBrushPath(footprint) {
-    // Union round disks and tangent connectors; consistent winding keeps loops solid.
-    const parts = [];
-    footprint.forEach((point, i) => {
-      const { x, y, radius: r } = point;
-      const radius = number(r);
-      parts.push("M" + xy(x + r, y) + "a" + radius + " " + radius + " 0 1 1 " + number(-2 * r) + " 0a" + radius + " " + radius + " 0 1 1 " + number(2 * r) + " 0Z");
-      if (!i) return;
-      const previous = footprint[i - 1];
-      const dx = x - previous.x;
-      const dy = y - previous.y;
-      const length = Math.hypot(dx, dy);
-      if (length <= Math.abs(previous.radius - r) + .001) return;
-      const tx = dx / length;
-      const ty = dy / length;
-      const slope = (previous.radius - r) / length;
-      const normal = Math.sqrt(1 - slope * slope);
-      const lx = slope * tx - normal * ty;
-      const ly = slope * ty + normal * tx;
-      const rx = slope * tx + normal * ty;
-      const ry = slope * ty - normal * tx;
-      parts.push("M" + xy(previous.x + lx * previous.radius, previous.y + ly * previous.radius)
-        + "L" + xy(previous.x + rx * previous.radius, previous.y + ry * previous.radius)
-        + "L" + xy(x + rx * r, y + ry * r) + "L" + xy(x + lx * r, y + ly * r) + "Z");
-    });
-    return parts.join("");
-  }
   function brushTouchesRect(footprint, rect) {
     return footprint.some((point) => {
       const dx = point.x - Math.max(rect.left, Math.min(point.x, rect.right));
@@ -160,8 +127,6 @@
     lastFrameTime = now;
     const mask = makeFootprint(chain);
     const maskOpacity = smoothFade((idle - MASK_HOLD) / MASK_FADE);
-    maskPath.setAttribute("d", makeBrushPath(mask));
-    maskPath.setAttribute("opacity", number(maskOpacity));
     textTargets.forEach((element, i) => element.classList.toggle("brush-touched",
       maskOpacity > .12 && brushTouchesRect(mask, textRects[i])));
     scheduleFrame();
