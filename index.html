@@ -10,6 +10,18 @@
   <body>
     <main class="viewport" aria-label="Octopus Mentality homepage">
       <section class="hero" id="hero" aria-labelledby="hero-title">
+        <canvas class="relief-canvas hero-relief" id="hero-relief-canvas" aria-hidden="true"></canvas>
+        <svg class="relief-reveal hero-relief" id="hero-relief" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <filter id="hero-relief-soft-edge" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+              <feGaussianBlur stdDeviation="42" />
+            </filter>
+            <mask id="hero-relief-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080" style="mask-type: alpha">
+              <path data-relief-path fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" filter="url(#hero-relief-soft-edge)" />
+            </mask>
+          </defs>
+          <image href="./white-relief.png" x="0" y="0" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" mask="url(#hero-relief-mask)" />
+        </svg>
         <svg class="guides" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
           <line x1="552" y1="0" x2="552" y2="1080" />
           <line x1="0" y1="313" x2="1920" y2="313" />
@@ -19,9 +31,6 @@
           <line class="guide-erase" x1="1920" y1="313" x2="1920" y2="313" />
           <line class="guide-erase" x1="0" y1="1080" x2="0" y2="1080" />
         </svg>
-
-        <svg class="paint-trail" id="paint-trail" viewBox="0 0 1920 1080" aria-hidden="true"><g id="trail-strokes" fill="white"></g></svg>
-        <canvas class="paint-trail" id="glow-trail" aria-hidden="true"></canvas>
 
         <h1 class="display-title title-octopus" id="hero-title" aria-label="Octopus Mentality">OCTOPUS</h1>
         <p class="display-title title-mentality" aria-hidden="true">MENTALITY</p>
@@ -68,14 +77,14 @@
       </section>
 
       <section class="clay-scene" id="clay" aria-label="Interactive floral clay relief">
-        <canvas class="clay-canvas" id="clay-canvas" aria-hidden="true"></canvas>
-        <svg class="clay-reveal" id="clay-reveal" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+        <canvas class="relief-canvas" id="clay-canvas" aria-hidden="true"></canvas>
+        <svg class="relief-reveal" id="clay-reveal" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
           <defs>
             <filter id="clay-soft-edge" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
               <feGaussianBlur stdDeviation="42" />
             </filter>
             <mask id="clay-brush-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080" style="mask-type: alpha">
-              <path id="clay-brush-path" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" filter="url(#clay-soft-edge)" />
+              <path id="clay-brush-path" data-relief-path fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" filter="url(#clay-soft-edge)" />
             </mask>
           </defs>
           <image id="clay-image" href="./clay-relief.jpg" x="0" y="0" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" mask="url(#clay-brush-mask)" />

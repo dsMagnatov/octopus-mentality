@@ -51,8 +51,7 @@ body {
   user-select: none;
 }
 
-.guides,
-.paint-trail {
+.guides {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -69,8 +68,6 @@ body {
 }
 .guides .guide-erase { stroke: var(--red); stroke-width: 4; stroke-linecap: round; }
 .hero [data-exit] { will-change: transform, opacity; }
-
-.paint-trail { z-index: 2; }
 
 .display-title {
   position: absolute;
@@ -271,8 +268,8 @@ body {
   background: #f72526;
   user-select: none;
 }
-.clay-reveal,
-.clay-canvas {
+.relief-reveal,
+.relief-canvas {
   position: absolute;
   inset: 0;
   display: block;
@@ -280,7 +277,8 @@ body {
   height: 100%;
   pointer-events: none;
 }
-.clay-canvas { display: none; }
+.relief-canvas { display: none; }
+.hero-relief { z-index: 0; }
 .clay-hint {
   position: absolute;
   right: clamp(24px, 3.4vw, 70px);

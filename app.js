@@ -6,21 +6,12 @@
   const CHAIN_FOLLOW_TIME = 38;
   const MASK_HOLD = 80;
   const MASK_FADE = 370;
-  const TRAIL_DELAY = 90;
-  const TRAIL_HOLD = 180;
-  const TRAIL_FADE = 420;
   const stage = document.getElementById("hero");
   const guides = stage.querySelector(".guides");
   const [verticalGuide, horizontalGuide, diagonalGuide] = guides.querySelectorAll("line");
   const circleGuide = guides.querySelector("circle");
-  const trailSvg = document.getElementById("paint-trail");
-  const trailGroup = document.getElementById("trail-strokes");
   const maskGroup = document.getElementById("mask-strokes");
-  const renderer = window.createCursorRenderer(document.getElementById("glow-trail"), trailSvg);
   const maskPath = document.createElementNS(SVG_NS, "path");
-  const trailPath = document.createElementNS(SVG_NS, "path");
-  trailPath.setAttribute("fill", "white");
-  trailGroup.append(trailPath);
   maskGroup.append(maskPath);
   const menuButton = document.getElementById("menu-button");
   const menuPanel = document.getElementById("menu-panel");
@@ -29,7 +20,6 @@
   let layout = { width: 0, height: 0, scale: 1 };
   let textRects = [];
   let chain = [];
-  let history = [];
   let pointer = null;
   let lastInputTime = 0;
   let lastFrameTime = 0;
@@ -37,12 +27,11 @@
 
   function stopFollowing() { pointer = null; }
   function clearBrush() {
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
     chain = [];
-    history = [];
     stopFollowing();
     maskPath.setAttribute("d", "");
-    trailPath.setAttribute("d", "");
-    renderer.draw([], 0);
     textTargets.forEach((element) => element.classList.remove("brush-touched"));
   }
   function setGuide(line, x1, y1, x2, y2) {
@@ -63,7 +52,6 @@
     const size = 922 * scale;
     layout = { width, height, scale };
     stage.style.setProperty("--s", String(scale));
-    trailSvg.setAttribute("viewBox", "0 0 " + width + " " + height);
     maskGroup.setAttribute("transform", "scale(" + 1 / scale + ") translate(" + -(width - size) / 2 + " " + -(height - size) / 2 + ")");
     guides.setAttribute("viewBox", "0 0 " + width + " " + height);
     setGuide(verticalGuide, width / 2 - 408 * scale, 0, width / 2 - 408 * scale, height);
@@ -72,7 +60,6 @@
     circleGuide.setAttribute("cx", width / 2);
     circleGuide.setAttribute("cy", height / 2);
     circleGuide.setAttribute("r", 468 * scale);
-    renderer.resize(width, height);
     clearBrush();
     measureText();
   }
@@ -124,18 +111,6 @@
       }
     }
   }
-  function interpolate(a, b, t) {
-    return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
-  }
-  function delayedChain(now) {
-    const time = now - TRAIL_DELAY;
-    while (history.length > 2 && history[1].time <= time) history.shift();
-    if (!history.length || history[0].time > time) return [];
-    if (history.length < 2) return history[0].points;
-    const [a, b] = history;
-    const amount = Math.max(0, Math.min(1, (time - a.time) / (b.time - a.time)));
-    return a.points.map((point, i) => interpolate(point, b.points[i], amount));
-  }
   function makeFootprint(points) {
     const radius = BRUSH_WIDTH * layout.scale / 2;
     return points.map((point) => ({ ...point, radius }));
@@ -180,22 +155,15 @@
     animationFrame = 0;
     if (!chain.length) return;
     const idle = now - lastInputTime;
-    if (idle >= TRAIL_DELAY + TRAIL_HOLD + TRAIL_FADE) { clearBrush(); return; }
+    if (idle >= MASK_HOLD + MASK_FADE) { clearBrush(); return; }
     updateChain(now);
     lastFrameTime = now;
-    history.push({ time: now, points: chain.map((point) => ({ ...point })) });
     const mask = makeFootprint(chain);
-    const trail = makeFootprint(delayedChain(now));
     const maskOpacity = smoothFade((idle - MASK_HOLD) / MASK_FADE);
-    const trailOpacity = smoothFade((idle - TRAIL_DELAY - TRAIL_HOLD) / TRAIL_FADE);
     maskPath.setAttribute("d", makeBrushPath(mask));
     maskPath.setAttribute("opacity", number(maskOpacity));
-    trailPath.setAttribute("d", makeBrushPath(trail));
-    trailPath.setAttribute("opacity", number(trailOpacity));
-    renderer.draw(trail, trailOpacity);
     textTargets.forEach((element, i) => element.classList.toggle("brush-touched",
-      (maskOpacity > .12 && brushTouchesRect(mask, textRects[i]))
-      || (trailOpacity > .12 && brushTouchesRect(trail, textRects[i]))));
+      maskOpacity > .12 && brushTouchesRect(mask, textRects[i])));
     scheduleFrame();
   }
   function scheduleFrame() {
