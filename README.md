@@ -1,6 +1,6 @@
 # Octopus Mentality
 
-Interactive two-screen site for a creative branding studio.
+Interactive landing page for a creative branding studio.
 
 ## Run locally
 
@@ -24,9 +24,11 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 - The pill below the lower-left studio statement opens the interactive art on the second screen.
 - Desktop layout and brush size scale from a 1920 × 1080 reference.
 - The octopus follows the cursor with gently eased parallax (up to 28 px horizontally and 20 px vertically at the reference size). Its reveal mask follows the moving image.
-- The first screen shows the diagonal guide from the updated mockup. Scrolling wipes it with the background color and lifts text upward at staggered times. The octopus freezes in place and only fades out, without rising or rotating.
+- The first screen shows the diagonal guide from the updated mockup. Its text remains in place as the rounded second screen slides over it like a stacked card. The octopus freezes in place and only fades out, without rising or rotating.
 - The second screen begins in the clay relief's base red (`#F72526`). Moving the cursor reveals the floral relief through broad, softly feathered organic patches.
-- The second screen starts with only the relief background. Further scrolling reveals a two-line statement, then the four columns of studio copy row by row while the screen stays in place.
+- The second screen starts with only the relief background. Scrolling reveals the heading and four columns of studio copy word by word through clipped text masks, with a short stagger between lines.
+- A separate porcelain octopus illustration rises next, followed by a small caption and a blue organic statement card that appears from behind it.
+- The final scroll scene is a contact form. It validates the required fields and saves a draft locally in the visitor's browser. Message delivery is not connected yet; add a destination or form service before using it to receive inquiries.
 - Both backgrounds use a stronger, bounded lift with subtle shading changes. Petals move together as they emerge and settle back without stretching their fine edges.
 
 The white octopus is composited on a transparent foreground canvas using the background renderer's exact mask. Without WebGL, both layers reuse the same blurred SVG path.
@@ -40,12 +42,13 @@ The original cursor motion was inspired by [React Bits Glow Cursor](https://www.
 - `index.html`: page markup and SVG mask.
 - `styles.css`: layout, typography, and colors.
 - `app.js`: responsive hero layout, text hover feedback, and navigation.
-- `scene.js`: staggered scroll transition, octopus parallax, and its fade in place. Parallax is disabled when reduced motion is preferred.
+- `scene.js`: guide-line scroll transition, octopus parallax, and its fade in place. Parallax is disabled when reduced motion is preferred.
 - `clay-reveal.js`: configuration for the white hero relief and red second-screen relief.
-- `clay-content.js`: scroll-driven reveal of the second-screen heading and copy.
+- `clay-content.js`: masked text reveals and scroll-driven image, statement, and contact scenes.
+- `contact-form.js`: local contact-draft validation and storage until message delivery is connected.
 - `cursor-renderer.js`: shared WebGL relief renderer, independent trail fading, and SVG fallback.
 - `server.mjs`: local development server.
-- `image 67.png`, `image 68.png`, `white-relief.png`, `clay-relief.jpg`, `logo.svg`: artwork used by the page.
+- `image 67.png`, `image 68.png`, `white-relief.png`, `clay-relief.jpg`, `clay-octopus-art.png`, `logo.svg`: artwork used by the page.
 - `fonts/`: local font files and their SIL Open Font License notices.
 
 Source mockups and unused 3D models are not required to run the site and are excluded from this repository. Both relief images are included so the project works after cloning.
