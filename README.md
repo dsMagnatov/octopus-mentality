@@ -26,9 +26,10 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 - The octopus follows the cursor with gently eased parallax (up to 28 px horizontally and 20 px vertically at the reference size). Its reveal mask follows the moving image.
 - The first screen shows the diagonal guide from the updated mockup. Its text remains in place as the rounded second screen slides over it like a stacked card. The octopus freezes in place and only fades out, without rising or rotating.
 - The second screen begins in the clay relief's base red (`#F72526`). Moving the cursor reveals the floral relief through broad, softly feathered organic patches.
-- The second screen starts with only the relief background. Scrolling reveals the heading and four columns of studio copy word by word through clipped text masks, with a short stagger between lines.
-- A separate porcelain octopus illustration rises next, followed by a small caption and a blue organic statement card that appears from behind it.
-- The final scroll scene is a contact form. It validates the required fields and saves a draft locally in the visitor's browser. Message delivery is not connected yet; add a destination or form service before using it to receive inquiries.
+- The lower content follows two editorial compositions inspired by the TRACKLIST and PEGASSI sections of [Ascension](https://ascension.pegassi.be/), using original branding-studio copy and this project's fonts and relief background.
+- The first composition introduces four disciplines in an asymmetric twelve-column grid, followed by a vertical photograph of a floral cow. The second combines a full-width introduction, a floral deer photograph, numbered notes and two small essays.
+- Text is measured into actual lines after the local fonts load. Each line rises through its own clipped mask over 0.9 seconds, with a 0.065-second stagger. Reveals begin on viewport entry and run once; line breaks are recalculated on resize. Screen readers receive each text block once, and reduced-motion mode shows the text immediately.
+- Both photographs have a small scroll parallax, disabled for reduced motion. The earlier illustration, statement card and contact form have been removed from the page.
 - Both backgrounds use a stronger, bounded lift with subtle shading changes. Petals move together as they emerge and settle back without stretching their fine edges.
 
 The white octopus is composited on a transparent foreground canvas using the background renderer's exact mask. Without WebGL, both layers reuse the same blurred SVG path.
@@ -44,13 +45,16 @@ The original cursor motion was inspired by [React Bits Glow Cursor](https://www.
 - `app.js`: responsive hero layout, text hover feedback, and navigation.
 - `scene.js`: guide-line scroll transition, octopus parallax, and its fade in place. Parallax is disabled when reduced motion is preferred.
 - `clay-reveal.js`: configuration for the white hero relief and red second-screen relief.
-- `clay-content.js`: masked text reveals and scroll-driven image, statement, and contact scenes.
-- `contact-form.js`: local contact-draft validation and storage until message delivery is connected.
+- `clay-content.js`: responsive line splitting, masked text reveals, and subtle photograph parallax.
 - `cursor-renderer.js`: shared WebGL relief renderer, independent trail fading, and SVG fallback.
 - `server.mjs`: local development server.
-- `image 67.png`, `image 68.png`, `white-relief.png`, `clay-relief.jpg`, `clay-octopus-art.png`, `logo.svg`: artwork used by the page.
+- `image 67.png`, `image 68.png`, `white-relief.png`, `clay-relief.jpg`, `floral-cow.jpg`, `floral-deer.png`, `logo.svg`: artwork used by the page.
 - `fonts/`: local font files and their SIL Open Font License notices.
 
 Source mockups and unused 3D models are not required to run the site and are excluded from this repository. Both relief images are included so the project works after cloning.
 
 The static page can also be hosted on a static web server without Node.js.
+
+## Animal photographs
+
+`floral-cow.jpg` is the user-provided meadow photograph. `floral-deer.png` was generated with the built-in image generation tool using the cow as a style reference: a realistic white deer with cobalt-blue floral markings, slender antlers and natural fur, standing among ferns and moss in a misty birch forest; soft morning light, portrait composition, no text or logos.

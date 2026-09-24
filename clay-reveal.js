@@ -14,6 +14,7 @@
   });
   window.createReliefRenderer({
     stage: document.getElementById("clay-stage"),
+    pointerTarget: document.getElementById("clay"),
     canvas: document.getElementById("clay-canvas"),
     fallback: document.getElementById("clay-reveal"),
     baseColor: [247 / 255, 37 / 255, 38 / 255],

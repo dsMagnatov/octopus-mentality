@@ -1,5 +1,5 @@
 // Shared, dependency-free relief reveal for the hero and the clay screen.
-window.createReliefRenderer = ({ stage, canvas, fallback, baseColor, reveal = null,
+window.createReliefRenderer = ({ stage, canvas, fallback, baseColor, reveal = null, pointerTarget = stage,
   depth = 0.075, enabled = () => true }) => {
   const fallbackPath = fallback.querySelector("[data-relief-path]");
   const fallbackMask = fallback.querySelector("mask");
@@ -371,7 +371,7 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor, reveal = nu
     lastFrame = now;
     animationFrame = requestAnimationFrame(render);
   }
-  stage.addEventListener("pointermove", (event) => {
+  pointerTarget.addEventListener("pointermove", (event) => {
     if (event.pointerType === "touch" || !enabled()
       || event.target.closest(".menu-button, .menu-panel, .brand")) {
       pointer = null;
@@ -388,7 +388,7 @@ window.createReliefRenderer = ({ stage, canvas, fallback, baseColor, reveal = nu
       animationFrame = requestAnimationFrame(render);
     }
   }, { passive: true });
-  stage.addEventListener("pointerleave", () => { pointer = null; });
+  pointerTarget.addEventListener("pointerleave", () => { pointer = null; });
   window.addEventListener("blur", reset);
   window.addEventListener("resize", resize, { passive: true });
   document.addEventListener("visibilitychange", () => { if (document.hidden) reset(); });
