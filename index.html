@@ -95,12 +95,12 @@
             <image id="clay-image" href="./clay-relief.jpg" x="0" y="0" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" mask="url(#clay-brush-mask)" />
           </svg>
 
-          <div class="clay-content">
-            <h2 class="clay-title">
+          <div class="clay-content" id="clay-intro">
+            <h2 class="clay-title" data-reveal-group>
               <span class="clay-title-line">BOLD IDEAS NEED</span>
               <span class="clay-title-line">BOLDER IDENTITIES</span>
             </h2>
-            <div class="clay-copy">
+            <div class="clay-copy" data-reveal-group>
               <div class="clay-column">
                 <p>Every memorable brand starts with a clear point of view. We help founders find the idea at the heart of their business, then give that idea a voice, a shape, and a place in people's minds.</p>
                 <p>Before colors or logos, we ask what the brand should make someone feel. We study the audience, the category, and the ambition behind the company. That thinking becomes a story strong enough to guide every detail.</p>
@@ -127,6 +127,42 @@
               </div>
             </div>
           </div>
+
+          <div class="story-visual" id="story-visual">
+            <img class="story-art" src="./clay-octopus-art.png" alt="A sculptural white octopus with cobalt floral patterns and gold details" draggable="false" />
+            <div class="story-caption" data-reveal-group>
+              <span class="story-kicker">01 / A distinct point of view</span>
+              <h2>Made to be remembered.</h2>
+              <p>We shape ambitious ideas into identities people can feel, recognize and carry forward.</p>
+            </div>
+          </div>
+
+          <div class="story-statement" id="story-statement">
+            <span class="statement-orbit" aria-hidden="true"></span>
+            <div class="statement-content" data-reveal-group>
+              <span class="story-kicker">02 / Beyond the ordinary</span>
+              <h2>Not made<br />to blend in.</h2>
+              <p>Every brand has a story worth uncovering. We give yours an unexpected shape and a lasting presence.</p>
+            </div>
+          </div>
+
+          <div class="contact-panel" id="contact-panel">
+            <div class="contact-heading" data-reveal-group>
+              <span class="contact-kicker">03 / Let's begin</span>
+              <h2>Have a bold<br /><em>idea?</em></h2>
+              <p>Tell us what you're building. Great identities begin with a conversation.</p>
+            </div>
+            <form id="contact-form" class="contact-form">
+              <label>Your name <input name="name" type="text" autocomplete="name" placeholder="How should we call you?" required /></label>
+              <label>Email address <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required /></label>
+              <label class="contact-wide">Project or brand <input name="project" type="text" autocomplete="organization" placeholder="What are you building?" /></label>
+              <label class="contact-wide">A little about your idea <textarea name="message" rows="3" placeholder="Tell us where you'd like to go…" required></textarea></label>
+              <div class="contact-actions contact-wide">
+                <button type="submit">Save your idea <span aria-hidden="true">↗</span></button>
+                <p id="contact-status" role="status" aria-live="polite">Your idea will be saved on this device until messaging is connected.</p>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
     </main>
@@ -135,5 +171,6 @@
     <script src="./scene.js" defer></script>
     <script src="./clay-reveal.js" defer></script>
     <script src="./clay-content.js" defer></script>
+    <script src="./contact-form.js" defer></script>
   </body>
 </html>

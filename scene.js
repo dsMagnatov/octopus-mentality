@@ -6,24 +6,6 @@
   const circle = guides.querySelector("circle");
   const octopus = hero.querySelector(".octopus");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const exits = [
-    [".title-octopus", .02, .46, -.34, -28, -2],
-    [".title-mentality", .08, .44, -.47, 24, 2],
-    [".brand", .20, .57, -.32, -16, -3],
-    [".menu-button", .28, .69, -.33, 18, 3],
-    [".top-right", .04, .40, -.39, 12, 2],
-    [".left-middle", .14, .54, -.42, -15, -3],
-    [".studio-copy h2", .23, .59, -.31, 9, 2],
-    [".studio-copy p:first-of-type", .07, .43, -.39, -12, -2],
-    [".studio-copy p:last-of-type", .31, .72, -.37, 19, 2],
-    [".left-bottom", .03, .38, -.47, 15, 3],
-    [".right-bottom", .25, .60, -.35, -13, -2],
-    [".footer-note", .17, .51, -.42, -10, 2]
-  ].map(([selector, start, end, rise, drift, rotate]) => {
-    const element = hero.querySelector(selector);
-    element.dataset.exit = "";
-    return { element, start, end, rise, drift, rotate };
-  });
   let scrollFrame = 0;
   let heroBrushCleared = false;
   const parallax = window.octopusParallax = { x: 0, y: 0 };
@@ -72,11 +54,6 @@
     const circleLeft = 1 - ease(phase(progress, .16, .82));
     circle.style.strokeDasharray = `${circumference * circleLeft} ${circumference}`;
     circle.setAttribute("transform", `rotate(180 ${stageWidth / 2} ${stageHeight / 2})`);
-    exits.forEach(({ element, start, end, rise, drift, rotate }) => {
-      const amount = ease(phase(progress, start, end));
-      element.style.opacity = String(1 - amount);
-      element.style.transform = `translate3d(${drift * amount}px, ${stageHeight * rise * amount}px, 0) rotate(${rotate * amount}deg)`;
-    });
   }
   function scheduleScroll() {
     if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScroll);
