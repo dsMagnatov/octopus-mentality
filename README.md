@@ -23,6 +23,8 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 - Text touched by the brush turns golden like the headings, without a shadow.
 - The pill below the lower-left studio statement opens the interactive art on the second screen.
 - Desktop layout and brush size scale from a 1920 × 1080 reference.
+- At widths up to 900 px, the hero becomes a vertical mobile composition with large titles, a full-width octopus, readable studio copy and touch-sized navigation. Repeated desktop captions are hidden. The hero scrolls naturally and the octopus stays visible; editorial photographs fill the content width, notes use two columns and essays stack below them.
+- Mobile text wrapping recalculates only when the viewport width changes, avoiding repeated reveal layouts when the browser address bar changes height. Touch scrolling is not intercepted by the cursor effects.
 - The octopus follows the cursor with gently eased parallax (up to 28 px horizontally and 20 px vertically at the reference size). Its reveal mask follows the moving image.
 - The first screen shows the diagonal guide from the updated mockup. Its text remains in place as the rounded second screen slides over it like a stacked card. The octopus freezes in place and only fades out, without rising or rotating.
 - The second screen begins in the clay relief's base red (`#F72526`). Moving the cursor reveals the floral relief through broad, softly feathered organic patches.

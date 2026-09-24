@@ -9,6 +9,7 @@
   let resizeTimer;
   let scrollFrame = 0;
   let observer;
+  let layoutWidth = window.innerWidth;
 
   function splitLines(element) {
     element.classList.remove("is-split");
@@ -113,6 +114,8 @@
 
   window.addEventListener("scroll", schedulePhotos, { passive: true });
   window.addEventListener("resize", () => {
+    if (window.innerWidth === layoutWidth) { schedulePhotos(); return; }
+    layoutWidth = window.innerWidth;
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(layout, 120);
   }, { passive: true });

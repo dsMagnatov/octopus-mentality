@@ -21,7 +21,8 @@
 
   function updateScroll() {
     scrollFrame = 0;
-    const progress = reducedMotion.matches ? 0 : clamp(window.scrollY / hero.clientHeight);
+    const compactLayout = window.matchMedia("(max-width: 900px)").matches;
+    const progress = reducedMotion.matches || compactLayout ? 0 : clamp(window.scrollY / hero.clientHeight);
     const stageWidth = hero.clientWidth;
     const stageHeight = hero.clientHeight;
     // Scrolling changes only opacity. Freeze the cursor offset in place so
@@ -30,7 +31,7 @@
       cancelAnimationFrame(parallaxFrame);
       parallaxFrame = 0;
     }
-    octopus.style.opacity = String(1 - ease(phase(
+    octopus.style.opacity = compactLayout ? "1" : String(1 - ease(phase(
       clamp(window.scrollY / stageHeight), 0, .32)));
     if (progress > .01 && !heroBrushCleared) {
       window.clearHeroBrush?.();
