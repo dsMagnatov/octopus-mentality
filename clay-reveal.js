@@ -3,7 +3,7 @@
     stage: document.getElementById("hero"),
     canvas: document.getElementById("hero-relief-canvas"),
     fallback: document.getElementById("hero-relief"),
-    baseColor: [245 / 255, 37 / 255, 37 / 255],
+    baseColor: [0, 16 / 255, 162 / 255],
     reveal: {
       canvas: document.getElementById("octopus-reveal-canvas"),
       fallback: document.getElementById("white-reveal"),
