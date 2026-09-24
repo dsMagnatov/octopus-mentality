@@ -203,11 +203,34 @@ body {
   text-align: right;
 }
 .left-bottom {
+  position: absolute;
+  z-index: 5;
   top: 67.5926%;
   left: calc(50% - 896px * var(--s));
   width: calc(250px * var(--s));
+}
+.vision-block .support-copy {
+  position: static;
+  width: 100%;
   text-align: justify;
 }
+.vision-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(48px * var(--s));
+  margin-top: calc(20px * var(--s));
+  padding: 0 calc(24px * var(--s));
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--hero-bg);
+  font: 600 calc(14px * var(--s))/1 "Manrope", Arial, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.vision-cta:hover { background: var(--accent); transform: translateY(calc(-2px * var(--s))); }
+.vision-cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .footer-note {
   top: 94.2593%;
   left: calc(50% - 648px * var(--s));
@@ -286,6 +309,7 @@ body {
 .hero-relief { z-index: 0; }
 @media (prefers-reduced-motion: reduce) {
   .menu-button { transition: none; }
+  .vision-cta { transition: none; }
   .eyebrow, .support-copy, .footer-note, .studio-copy,
   .studio-copy h2, .studio-copy p { transition: none; }
 }

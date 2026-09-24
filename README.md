@@ -21,6 +21,7 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 - The octopus and background share one soft organic mask, including the same feathered edges, cursor movement, and fading.
 - Each painted area fully disappears over roughly two seconds, including while the cursor continues moving elsewhere. No faint ornament remains behind.
 - Text touched by the brush turns golden like the headings, without a shadow.
+- The pill below the lower-left studio statement opens the interactive art on the second screen.
 - Desktop layout and brush size scale from a 1920 × 1080 reference.
 - The octopus follows the cursor with gently eased parallax (up to 28 px horizontally and 20 px vertically at the reference size). Its reveal mask follows the moving image.
 - The first screen shows the diagonal guide from the updated mockup. Scrolling wipes it with the background color and lifts text upward at staggered times. The octopus freezes in place and only fades out, without rising or rotating.
