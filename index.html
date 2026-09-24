@@ -81,23 +81,59 @@
       </section>
 
       <section class="clay-scene" id="clay" aria-label="Interactive floral clay relief">
-        <canvas class="relief-canvas" id="clay-canvas" aria-hidden="true"></canvas>
-        <svg class="relief-reveal" id="clay-reveal" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
-          <defs>
-            <filter id="clay-soft-edge" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
-              <feGaussianBlur stdDeviation="42" />
-            </filter>
-            <mask id="clay-brush-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080" style="mask-type: alpha">
-              <path id="clay-brush-path" data-relief-path fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" filter="url(#clay-soft-edge)" />
-            </mask>
-          </defs>
-          <image id="clay-image" href="./clay-relief.jpg" x="0" y="0" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" mask="url(#clay-brush-mask)" />
-        </svg>
+        <div class="clay-stage" id="clay-stage">
+          <canvas class="relief-canvas" id="clay-canvas" aria-hidden="true"></canvas>
+          <svg class="relief-reveal" id="clay-reveal" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <filter id="clay-soft-edge" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+                <feGaussianBlur stdDeviation="42" />
+              </filter>
+              <mask id="clay-brush-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080" style="mask-type: alpha">
+                <path id="clay-brush-path" data-relief-path fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" filter="url(#clay-soft-edge)" />
+              </mask>
+            </defs>
+            <image id="clay-image" href="./clay-relief.jpg" x="0" y="0" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" mask="url(#clay-brush-mask)" />
+          </svg>
+
+          <div class="clay-content">
+            <h2 class="clay-title">
+              <span class="clay-title-line">BOLD IDEAS NEED</span>
+              <span class="clay-title-line">BOLDER IDENTITIES</span>
+            </h2>
+            <div class="clay-copy">
+              <div class="clay-column">
+                <p>Every memorable brand starts with a clear point of view. We help founders find the idea at the heart of their business, then give that idea a voice, a shape, and a place in people's minds.</p>
+                <p>Before colors or logos, we ask what the brand should make someone feel. We study the audience, the category, and the ambition behind the company. That thinking becomes a story strong enough to guide every detail.</p>
+                <p>From a first impression to a lasting relationship, the work has to mean something. We make identities that feel unmistakable today and remain useful as the business grows.</p>
+                <p>The goal is simple: make the right people stop, feel, and remember. Then give them a reason to come back.</p>
+              </div>
+              <div class="clay-column">
+                <p>We turn strategy into a visual world with its own rhythm. Typography, color, imagery, and motion work together so each encounter feels unmistakably yours.</p>
+                <p>We build brands for curious people and ambitious founders. The process is collaborative from the first sketch: we listen closely, challenge easy answers, and follow the strongest idea wherever it leads.</p>
+                <p>The result has to be beautiful, but beauty alone is never enough. It should make a complex offer feel clear, give a new venture confidence, and help a growing team speak with one voice.</p>
+                <p>Every mark, message, and movement earns its place. Together they create an identity people can recognize without needing to see the name.</p>
+              </div>
+              <div class="clay-column">
+                <p>An identity does not live on a single page. It moves through websites, packaging, campaigns, spaces, and the small moments that shape how people remember a company.</p>
+                <p>We create flexible systems that hold together wherever the brand appears. A distinctive detail can become a whole language; a strong idea can travel without losing its meaning.</p>
+                <p>That is why we think beyond launch day. We make room for new products, new stories, and the unexpected turns that come with building something worth caring about.</p>
+                <p>When every piece belongs to the same world, the brand feels alive. It grows with the business and stays familiar to the people who follow it.</p>
+              </div>
+              <div class="clay-column">
+                <p>The future moves quickly. A brand should be ready to move with it while staying true to what made it matter in the first place.</p>
+                <p>We pair bold thinking with careful craft, shaping identities that are expressive, practical, and built to last. No borrowed personality, no details added just for decoration.</p>
+                <p>Whether the idea is just beginning or ready for its next chapter, we help turn potential into presence. We make space for the unexpected and give people something real to connect with.</p>
+                <p>Let's give your vision a form the world can recognize, remember, and carry forward.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
     <script src="./cursor-renderer.js" defer></script>
     <script src="./app.js" defer></script>
     <script src="./scene.js" defer></script>
     <script src="./clay-reveal.js" defer></script>
+    <script src="./clay-content.js" defer></script>
   </body>
 </html>

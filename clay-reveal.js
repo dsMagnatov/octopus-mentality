@@ -13,7 +13,7 @@
     enabled: () => window.scrollY <= 2
   });
   window.createReliefRenderer({
-    stage: document.getElementById("clay"),
+    stage: document.getElementById("clay-stage"),
     canvas: document.getElementById("clay-canvas"),
     fallback: document.getElementById("clay-reveal"),
     baseColor: [247 / 255, 37 / 255, 38 / 255],

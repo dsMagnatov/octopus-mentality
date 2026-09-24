@@ -26,6 +26,7 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 - The octopus follows the cursor with gently eased parallax (up to 28 px horizontally and 20 px vertically at the reference size). Its reveal mask follows the moving image.
 - The first screen shows the diagonal guide from the updated mockup. Scrolling wipes it with the background color and lifts text upward at staggered times. The octopus freezes in place and only fades out, without rising or rotating.
 - The second screen begins in the clay relief's base red (`#F72526`). Moving the cursor reveals the floral relief through broad, softly feathered organic patches.
+- The second screen starts with only the relief background. Further scrolling reveals a two-line statement, then the four columns of studio copy row by row while the screen stays in place.
 - Both backgrounds use a stronger, bounded lift with subtle shading changes. Petals move together as they emerge and settle back without stretching their fine edges.
 
 The white octopus is composited on a transparent foreground canvas using the background renderer's exact mask. Without WebGL, both layers reuse the same blurred SVG path.
@@ -41,6 +42,7 @@ The original cursor motion was inspired by [React Bits Glow Cursor](https://www.
 - `app.js`: responsive hero layout, text hover feedback, and navigation.
 - `scene.js`: staggered scroll transition, octopus parallax, and its fade in place. Parallax is disabled when reduced motion is preferred.
 - `clay-reveal.js`: configuration for the white hero relief and red second-screen relief.
+- `clay-content.js`: scroll-driven reveal of the second-screen heading and copy.
 - `cursor-renderer.js`: shared WebGL relief renderer, independent trail fading, and SVG fallback.
 - `server.mjs`: local development server.
 - `image 67.png`, `image 68.png`, `white-relief.png`, `clay-relief.jpg`, `logo.svg`: artwork used by the page.

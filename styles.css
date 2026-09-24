@@ -291,10 +291,61 @@ body {
 .clay-scene {
   position: relative;
   z-index: 9;
+  height: 300vh;
+  background: #f72526;
+}
+.clay-stage {
+  position: sticky;
+  top: 0;
   height: 100vh;
   overflow: hidden;
   background: #f72526;
   user-select: none;
+}
+.clay-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.clay-title {
+  position: absolute;
+  top: calc(98px * var(--s));
+  left: 50%;
+  width: calc(1050px * var(--s));
+  margin: 0;
+  transform: translateX(-50%);
+  color: var(--white);
+  font: 400 calc(108px * var(--s))/1.12 "Instrument Serif", Georgia, serif;
+  text-align: center;
+  white-space: nowrap;
+}
+.clay-title-line { display: block; }
+.clay-scene.has-scroll-reveal .clay-title-line {
+  opacity: 0;
+  filter: blur(calc(8px * var(--s)));
+  transform: translateY(calc(22px * var(--s)));
+  will-change: opacity, filter, transform;
+}
+.clay-copy {
+  position: absolute;
+  top: calc(370px * var(--s));
+  left: calc(50% + 15px * var(--s));
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: calc(14px * var(--s));
+  width: calc(1000px * var(--s));
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, .88);
+  font: 400 calc(16px * var(--s))/1.32 "Manrope", Arial, sans-serif;
+  text-align: justify;
+}
+.clay-column p { margin: 0 0 calc(15px * var(--s)); }
+.clay-column p:last-child { margin-bottom: 0; }
+.clay-scene.has-scroll-reveal .clay-column {
+  --reveal-y: 0px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(var(--reveal-y) - 14px * var(--s)), transparent var(--reveal-y));
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(var(--reveal-y) - 14px * var(--s)), transparent var(--reveal-y));
 }
 .relief-reveal,
 .relief-canvas {
