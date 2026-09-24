@@ -55,6 +55,14 @@ Source mockups and unused 3D models are not required to run the site and are exc
 
 The static page can also be hosted on a static web server without Node.js.
 
+## Deploy to Vercel
+
+Connect this repository and deploy the `main` branch with the repository root as the Root Directory. The checked-in `vercel.json` explicitly selects the **Other** framework preset, skips installation/build commands, and serves the root directory as static files.
+
+Do not select a Node.js or Express server preset: `app.js` is browser code and requires `document`. `server.mjs` is only the local preview server. Treating `app.js` as a server entrypoint produces `FUNCTION_INVOCATION_FAILED` with `document is not defined`, even when Vercel marks the deployment Ready.
+
+After publishing, open the production URL and check the page and its images. A green deployment status alone does not verify the running site.
+
 ## Animal photographs
 
 `floral-cow.jpg` is the user-provided meadow photograph. `floral-deer.png` was generated with the built-in image generation tool using the cow as a style reference: a realistic white deer with cobalt-blue floral markings, slender antlers and natural fur, standing among ferns and moss in a misty birch forest; soft morning light, portrait composition, no text or logos.
