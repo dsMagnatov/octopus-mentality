@@ -15,12 +15,12 @@ Open http://localhost:4173. Set the `PORT` environment variable to use another p
 ## Design and interaction
 
 - Instrument Serif display headings and Manrope body copy, served locally.
-- Deep blue first-screen background (`#0010A2`) and white headings (`#FFFFFF`). OCTOPUS aligns with the logo's left inset in the updated home mockup.
+- Deep blue first-screen background (`#0010A2`) and golden headings (`#FFBF48`). OCTOPUS aligns with the logo's left inset in the updated home mockup.
 - The patterned octopus is visible at first; a smooth brush reveals its white surface under the cursor.
 - The first screen's blue background hides a white floral relief. Cursor movement reveals it through soft organic patches behind the octopus and typography.
 - The octopus and background share one soft organic mask, including the same feathered edges, cursor movement, and fading.
 - Each painted area fully disappears over roughly two seconds, including while the cursor continues moving elsewhere. No faint ornament remains behind.
-- Text touched by the brush turns opaque white like the headings, without a shadow.
+- Text touched by the brush turns golden like the headings, without a shadow.
 - Desktop layout and brush size scale from a 1920 × 1080 reference.
 - The octopus follows the cursor with gently eased parallax (up to 28 px horizontally and 20 px vertically at the reference size). Its reveal mask follows the moving image.
 - The first screen shows the diagonal guide from the updated mockup. Scrolling wipes it with the background color and lifts text upward at staggered times. The octopus freezes in place and only fades out, without rising or rotating.
